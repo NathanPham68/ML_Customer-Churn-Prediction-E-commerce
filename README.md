@@ -307,9 +307,31 @@ Churn users recevied cashback amount less than not churn users.
 
 ### **Q2. Build the Machine Learning model for predicting churned users. (fine tuning)**
 
+The model will be trained using the top 5 features impacting churn behavior: Tenure, CashbackAmount, WarehouseToHome, Complain, and DaySinceLastOrder.
+
 <img width="811" height="665" alt="image" src="https://github.com/user-attachments/assets/6ea62843-65b5-48bf-960d-b0219d61da33" />
 
 <img width="763" height="608" alt="image" src="https://github.com/user-attachments/assets/d9572dc5-4276-4c29-91e6-7478b4ad1b02" />
+
+**📝 Choose Model**
+
+1. Choose metric for evaluating
+- The primary goal is to accurately identify customers likely to churn and implement retention strategies.
+- If the model misses too many churned customers (high False Negatives - FN), the business will lose customers that could have been retained.
+- Losing customers (FN) causes more damage than mistakenly targeting non-churned customers (FP) for retention efforts → Recall is prioritized.
+
+2. Model Comparison & Selection
+
+| Model                  | Recall Score |
+|------------------------|--------------|
+| **Random Forest Recall**      | **0.8239**    |
+| Logistic Regression Recall   | 0.4225       |
+| KNN Recall                   | 0.5986       |
+| XGBoost Recall     | 0.7676       |
+| Gradient Boosting Recall     | 0.5493       |
+
+- After testing five models, **Random Forest achieved the highest Recall score**.  
+- → **Select Random Forest and proceed with fine-tuning** to improve performance.  
 
 **📝 Fine-tune the BEST model**
 
@@ -373,6 +395,9 @@ plt.show()
 ```
 
 <img width="847" height="469" alt="image" src="https://github.com/user-attachments/assets/ca119b5c-2993-4302-980d-1c363544d7cb" />
+
+**💡Conclusion:**
+Base on the image, we can conclude that top 5 important features hwich directly affecting to churn behaviors are: Tenture, CashbackAmount, WarehouseTohome, Complain, DaySinceLastOrder. These features play a crucial role in predicting whether a customer is likely to churn. Tenure and Days Since Last Order indicate customer engagement, while Cashback Amount and Complaints reflect satisfaction levels. Warehouse to Home Distance may influence delivery experience, impacting customer retention. Then, we will plot a histogram chart to visualize the differences between churn and non-churn behavior for the top important features. This will help us identify patterns and understand how these features contribute to customer churn.
 
 ### **Q3. Based on the behaviors of churned users, the company would like to offer some special promotions for them. Please segment these churned users into groups. What are the differences between groups?**
 
