@@ -168,7 +168,7 @@ for col in cols_missing:
 
 **📝 Check for Duplicates**  
 
-Aftering checkeing for duplicate rows in the dataset and found that there were no duplicate entries.
+Aftering checking for duplicate rows in the dataset and found that there were no duplicate entries.
 
 <img width="561" height="176" alt="image" src="https://github.com/user-attachments/assets/17a77e1a-23a6-4d14-b8f9-09b64fe28f6d" />
 
