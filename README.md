@@ -4,11 +4,11 @@
 
 ## 📑 Table of Contents
 1. 🌱 [Background & Overview](#background-&-overview)
-2. 🔍 [Exploratory Data Analysis (EDA)](#exploratory-data-analysis-eda)
-3. 📊 [Train & Apply Churn Prediction Model](#train-apply-churn-prediction-model)
-4. 💡 [Key Findings and Recommendations for Retention](#key-findings-and-recommendations-for-retention)
-5. 🤖 [Create A Model For Predicting Churn](#create-a-model-for-predicting-churn)
-6. 🧑‍💻 [Customer Segmentation Using Clustering](#customer-segmentation-using-clustering)
+2. 🔍 [Dataset Description & Data Structure](#dataset-description-&-data-structure)
+3. 📊 [Main Process](#main-process)
+4. 💡 [Q1. What are the patterns/behavior of churned users?](#q1.-what-are-the-patterns/behavior-of-churned-users?)
+5. 🤖 [Q2. Build the Machine Learning model for predicting churned users](#q2.-build-the-machine-learning-model-for-predicting-churned-users)
+6. 🧑‍💻 [Q3. Based on the behaviors of churned users, the company would like to offer some special promotions for them](#q3.-based-on-the-behaviors-of-churned-users,-the-company-would-like-to-offer-some-special-promotions-for-them)
 
 ## 📌 Background & Overview
 
@@ -307,22 +307,114 @@ Churn users recevied cashback amount less than not churn users.
 
 ### **Q2. Build the Machine Learning model for predicting churned users. (fine tuning)**
 
+<img width="811" height="665" alt="image" src="https://github.com/user-attachments/assets/6ea62843-65b5-48bf-960d-b0219d61da33" />
 
+<img width="763" height="608" alt="image" src="https://github.com/user-attachments/assets/d9572dc5-4276-4c29-91e6-7478b4ad1b02" />
 
+**📝 Fine-tune the BEST model**
 
+```ruby
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import RandomizedSearchCV
 
+# 1. Khởi tạo mô hình cơ bản
+rf_base = RandomForestClassifier(random_state=42)
 
+# 2 Tạo grid tham số để RandomizedSearch
+param_grid_rf = {
+    'n_estimators': [50, 100, 200, 300, 500],
+    'max_depth': [5, 10, 15, 20, None],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4],
+    'max_features': ['sqrt', 'log2', None],
+    'bootstrap': [True, False]
+}
 
+# 3 RandomizedSearchCV với scoring là Recall
+rf_finetune = RandomizedSearchCV(
+    estimator=rf_base,
+    param_distributions=param_grid_rf,
+    n_iter=30,  # số vòng thử nghiệm
+    cv=5,
+    scoring='recall',
+    verbose=1,
+    random_state=42,
+    n_jobs=-1  # tận dụng nhiều CPU core
+)
 
+# 4 Fit trên train set
+rf_finetune.fit(X_train_scaled, y_train)
 
+# 5 Kết quả tốt nhất
+print("Best Params RF:", rf_finetune.best_params_)
+print("Best CV Recall:", rf_finetune.best_score_)
+```
 
+**📝 Best RF score on test set**
 
+<img width="684" height="661" alt="image" src="https://github.com/user-attachments/assets/8cac0355-e4fb-48ee-9a63-f12df75b2623" />
 
+**📝 Check feature importance**
 
+```ruby
+# Tầm quan trọng của feature
+importances = pd.Series(
+    best_rf.feature_importances_,
+    index=top_features
+).sort_values(ascending=False)
 
+print(importances)
 
+# Vẽ biểu đồ
+plt.figure(figsize=(8,5))
+sns.barplot(x=importances, y=importances.index)
+plt.title("Feature Importance - Best RF Model")
+plt.show()
+```
 
+<img width="847" height="469" alt="image" src="https://github.com/user-attachments/assets/ca119b5c-2993-4302-980d-1c363544d7cb" />
 
+### **Q3. Based on the behaviors of churned users, the company would like to offer some special promotions for them. Please segment these churned users into groups. What are the differences between groups?**
 
+<img width="746" height="552" alt="image" src="https://github.com/user-attachments/assets/1c2d9adf-8b41-4074-ae4d-0a074bd0738d" />
 
+**📝 Apply PCA for dimensionality reduction & visualization**
+
+<img width="763" height="343" alt="image" src="https://github.com/user-attachments/assets/7d6a9486-90f6-47d3-86e0-d127570a1597" />
+
+**📝 Determine the appropriate number of Clusters: Elbow + Silhouette**
+
+```ruby
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# Elbow method
+wcss = []
+K = range(1, 11)
+for k in K:
+    kmeans = KMeans(n_clusters=k, init='k-means++', random_state=42)
+    kmeans.fit(pca_df)
+    wcss.append(kmeans.inertia_)
+
+plt.figure(figsize=(6,4))
+plt.plot(K, wcss, 'bo--')
+plt.title('Elbow Method')
+plt.xlabel('Number of clusters')
+plt.ylabel('WCSS')
+plt.show()
+```
+
+<img width="694" height="401" alt="image" src="https://github.com/user-attachments/assets/85e66394-5c54-44bb-ad50-33a398277939" />
+
+<img width="763" height="243" alt="image" src="https://github.com/user-attachments/assets/d2c030d4-e491-40aa-9669-4a2113e185a0" />
+
+- PCA can not keep the significant meaning of the data (the sum of explained_variance_ratio is too small)
+- When applying Elbow method, we see there're no clear elbow points.
+- Our hypothesis is that the data is sporadic, which means there're no clearly common patterns between data, and we can not cluster them into groups.
+
+**Our suggestions for next steps:**
+
+* We can gather more data on churned users — either by collecting actual churn data or by using the supervised model above to predict churn and treat those predictions as ground truth for the clustering model.
+
+* The business can roll out promotions to all churned users and track the results. These results can then be added as new features in the next model.
 
