@@ -196,6 +196,124 @@ After preprocessing the dataset, encoding was applied to the categorical feature
 
 The `CustomerID` column was dropped since it is a unique identifier and does not contribute to the prediction model.
 
+<img width="1017" height="603" alt="image" src="https://github.com/user-attachments/assets/b335ca3d-a383-4503-ad24-97cfe04afe6e" />
+
+Show Feature Importance
+
+```ruby
+feats = {} # a dict to hold feature_name: feature_importance
+for feature, importance in zip(x.columns, clf_ranf.feature_importances_):
+    feats[feature] = importance #add the name/value pair
+
+importances = pd.DataFrame.from_dict(feats, orient='index').rename(columns={0: 'Gini-importance'})
+importances = importances.sort_values(by='Gini-importance', ascending=True)
+
+importances = importances.reset_index()
+
+# Create bar chart
+plt.figure(figsize=(8, 8))
+plt.barh(importances.tail(20)['index'][:20], importances.tail(20)['Gini-importance'])
+
+plt.title('Feature Important')
+
+# Show plot
+plt.show()
+```
+
+<img width="1136" height="707" alt="image" src="https://github.com/user-attachments/assets/0ef3e0a9-76fc-4757-bf28-cc6e91ff6b3d" />
+
+As Feature Importance show, we can see these features can have high relation with target columns:
+* Tenure
+* Cashback amount
+* Distance from warehouse to home
+* Complain
+* Days since Last order
+
+&rarr; We will analyse and visualize these features for more insights.
+
+**📝 Analyse features from initial Random Forest model**
+
+* Tenure
+* Cashback amount
+* Distance from warehouse to home
+* Complain
+* Days since Last order
+
+```ruby
+def count_percentage(df, column, target, count):
+    '''
+    This function to create the table calculate the percentage of fraud/non-fraud
+    transaction on total transaction group by category values
+    '''
+
+    # Create 2 dataframes of fraud and non-fraud
+    fraud = df[df[target]==1].groupby(column)[[count]].count().reset_index().sort_values(ascending=False, by = count)
+    not_fraud = df[df[target]==0].groupby(column)[[count]].count().reset_index().sort_values(ascending=False, by = count)
+
+    #Merge 2 dataframe into one:
+    cate_df = fraud.merge(not_fraud, on = column , how = 'outer')
+    cate_df = cate_df.fillna(0)
+    cate_df.rename(columns = {count+'_x':'fraud',count+'_y':'not_fraud'}, inplace = True)
+
+    #Caculate the percentage:
+    cate_df['%'] = cate_df['fraud']/(cate_df['fraud']+cate_df['not_fraud'])
+    cate_df = cate_df.sort_values(by='%', ascending=False)
+
+    return cate_df
+```
+
+#### **1. Tenure**  New users are churned more than old users (tenure = 0 or 1)
+
+<img width="1189" height="571" alt="image" src="https://github.com/user-attachments/assets/a1096eea-08da-4772-993f-2a7a27b8936d" />
+
+<img width="1216" height="570" alt="image" src="https://github.com/user-attachments/assets/ba1add97-0b17-4313-8f79-b61463ba0ff0" />
+
+#### **2. Warehouse to home**  Not significantly related
+
+<img width="622" height="619" alt="image" src="https://github.com/user-attachments/assets/2d0aac9b-c891-4e13-afd4-532c1e3ed541" />
+
+<img width="737" height="511" alt="image" src="https://github.com/user-attachments/assets/989691ce-2802-4273-84b2-b49fed960c6f" />
+
+For both churn & not churn:
+* The median, pt25, mean, pt75 is quite the same --> The centralize of data is the same
+* For not churn, data has some outliers --> This can be not significant enough to consider it as an insight for not churn
+
+&rarr; There're no strong evidences show that there different between churn and not churn for warehousetohome --> We will exclude this features when apply model for not being bias.
+
+#### **3. Days since last order:** churn users with complain = 1 have higher days since orders than churned users with complain = 0
+
+<img width="789" height="618" alt="image" src="https://github.com/user-attachments/assets/3e6f008c-37fa-42d7-8c42-3402198869de" />
+
+From this chart, we see for churned users, they had orders recently (the day since last order less than not churned users) --> This quite strange, we should monitor more features for this insight (satisfaction_score, complain,..)
+
+<img width="768" height="655" alt="image" src="https://github.com/user-attachments/assets/49c9b34d-2f57-49b0-923b-0c289a731f99" />
+
+For churned users with complain = 1, they had daysincelastorder higher than churn users with compain = 0
+
+#### **4. Cashback amount**  Churn users recevied cashback amount less than not churn users.
+
+<img width="758" height="619" alt="image" src="https://github.com/user-attachments/assets/22fd52cd-7600-4e29-8ef9-42096dc2f956" />
+
+Churn users recevied cashback amount less than not churn users.
+
+#### **5. Complain** The number of users complain on churn is higher than not churn
+
+<img width="803" height="595" alt="image" src="https://github.com/user-attachments/assets/1c058cd5-9c21-4474-82d9-c18486965553" />
+
+#### **6. Conclusion & Suggestion**
+1. Churned users usually are new users &rarr; Provide more promotion for new users, or increase the new users experience
+2. Churned users usually receive less cashback than not churn &rarr; Increase the cashback ratio
+3. Churned users complain more &rarr; deep dive what these churned users complain about, and provide the solution
+
+### **Q2. Build the Machine Learning model for predicting churned users. (fine tuning)**
+
+
+
+
+
+
+
+
 
 
 
