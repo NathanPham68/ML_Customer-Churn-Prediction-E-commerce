@@ -1,4 +1,4 @@
-# Churn Prediction & Segmentation For Retention Strategy For Ecommerce
+# [ML] Customer Churn Prediction - E-commerce
 
 <img width="1024" height="366" alt="image" src="https://github.com/user-attachments/assets/94ea100c-aab3-432f-b117-174fbd0ca8e0" />
 
