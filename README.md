@@ -23,7 +23,7 @@ This project aims to predict and segment churned users for an e-commerce busines
 ✔️ Segment churned users to tailor retention offers and special promotions.
 
 
-**❓ What Business Question Will It Solve?**
+### **❓ What Business Question Will It Solve?**
 
 ✔️ Which factors drive customer churn in e-commerce?
 
@@ -34,7 +34,7 @@ This project aims to predict and segment churned users for an e-commerce busines
 ✔️ How can churned users be segmented to enable targeted promotional strategies?
 
 
-**👤 Who Is This Project For?**
+### **👤 Who Is This Project For?**
 
 ✔️ Data Analysts & Business Analysts — To uncover insights on churn behavior and inform retention planning.
 
